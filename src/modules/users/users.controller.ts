@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '../../common/guards/auth.guard';
@@ -23,6 +24,7 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { UpdateDeliveryAddressDto } from './dto/update-delivery-address.dto';
 import { EmailDto } from '../auth/dto';
+import { DeliveryAddressQueryParamsDto } from './dto/get-delivery-addresses.dto';
 
 @Controller('users')
 export class UsersController {
@@ -54,8 +56,11 @@ export class UsersController {
 
   @Get('/delivery-addresses')
   @UseGuards(AuthGuard)
-  getDeliveryAddresses(@CurrentUser() user: User): Promise<DeliveryAddress[]> {
-    return this.usersService.getDeliveryAddresses(user);
+  getDeliveryAddresses(
+    @CurrentUser() user: User,
+    @Query() queryParams: DeliveryAddressQueryParamsDto,
+  ): Promise<DeliveryAddress[]> {
+    return this.usersService.getDeliveryAddresses(user, queryParams);
   }
 
   @Patch('/delivery-addresses/:addressId')

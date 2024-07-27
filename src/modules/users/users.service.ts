@@ -7,7 +7,8 @@ import { DeliveryAddress } from './entities/delivery-address.entity';
 import { CreateDeliveryAddressDto } from './dto/create-delivery-address.dto';
 import { NextOfKin } from './entities/next-of-kin.entity';
 import { UpdateDeliveryAddressDto } from './dto/update-delivery-address.dto';
-// import { QueryService } from '../../common/utils/apiFeatures';
+import { QueryService } from '../../common/utils/queryService';
+import { DeliveryAddressQueryParamsDto } from './dto/get-delivery-addresses.dto';
 
 @Injectable()
 export class UsersService {
@@ -17,7 +18,7 @@ export class UsersService {
     private addressesRepository: Repository<DeliveryAddress>,
     @InjectRepository(NextOfKin)
     private nextOfKinRepository: Repository<NextOfKin>,
-    // private readonly queryService: QueryService,
+    private queryService: QueryService,
   ) {}
 
   async create(
@@ -58,35 +59,41 @@ export class UsersService {
     return address;
   }
 
-  getDeliveryAddresses(user: User): Promise<DeliveryAddress[]> {
-    return this.addressesRepository.find({
-      where: { userId: user.id },
-      order: { createdAt: 'DESC' },
-      // select: {
-      //   address: true,
-      //   landmarkArea: true,
-      //   user: { id: true, firstName: true, lastName: true },
-      // },
-      // relations: { user: true },
-      // skip: 0,
-      // take: 1,
+  // getDeliveryAddresses(user: User): Promise<DeliveryAddress[]> {
+  //   return this.addressesRepository.find({
+  //     where: { userId: user.id },
+  //     order: { createdAt: 'DESC' },
+  //     select: {
+  //       address: true,
+  //       landmarkArea: true,
+  //       user: { id: true, firstName: true, lastName: true },
+  //     },
+  //     relations: { user: true },
+  //     skip: 0,
+  //     take: 1,
+  //   });
+  // }
+
+  // Usage example of QueryService
+  getDeliveryAddresses(
+    user: User,
+    queryParams: DeliveryAddressQueryParamsDto,
+  ): Promise<DeliveryAddress[]> {
+    return this.queryService.query<DeliveryAddress>({
+      repository: this.addressesRepository,
+      queryParams,
+      filter: { userId: user.id },
+      sortFields: { createdAt: 'DESC' }, // Sort fields must be among selected fields. is the entity ID needed for a relation?
+      relations: { user: true },
+      selectFields: {
+        // id: true,
+        // createdAt: true,
+        user: { id: true, firstName: true, lastName: true },
+        address: true,
+        landmarkArea: true,
+      },
     });
   }
-
-  // // Practice
-  // getDeliveryAddresses(user: User): Promise<DeliveryAddress[]> {
-  //   return this.queryService.findAll(
-  //     this.addressesRepository,
-  //     {
-  //       landmarkArea: 'Fadeyi',
-  //       sort: 'createdAt:DESC, id: ASC',
-  //       fields: 'address, landmarkArea',
-  //       page: 1,
-  //       limit: 10,
-  //     },
-  //     { userId: user.id },
-  //   );
-  // }
 
   async updateDeliveryAddress(
     addressId: number,

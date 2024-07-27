@@ -5,12 +5,12 @@ import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { DeliveryAddress } from './entities/delivery-address.entity';
 import { NextOfKin } from './entities/next-of-kin.entity';
-// import { QueryService } from '../../common/utils/apiFeatures';
+import { QueryService } from '../../common/utils/queryService';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, DeliveryAddress, NextOfKin])],
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [UsersService, QueryService],
   exports: [UsersService],
 })
 export class UsersModule {}
